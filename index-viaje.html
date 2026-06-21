@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="apple-touch-icon" href="icon-viaje.png">
+<link rel="icon" href="icon-viaje.png">
+<title>Cuenta regresiva · España 2026</title>
+<style>
+  :root{
+    --night:#101B33;
+    --night-soft:#22335A;
+    --paper:#FAF6F0;
+    --card:#FFFFFF;
+    --line:#EAE3D7;
+    --terracotta:#D9663F;
+    --terracotta-bg:#FBE9E1;
+    --sage:#5F8D78;
+    --sage-bg:#E7F0EA;
+    --gold:#C9A24B;
+    --gold-bg:#F8F0DD;
+    --blue:#3B6FB6;
+    --blue-bg:#E7EEF9;
+    --rose:#C45B7A;
+    --rose-bg:#FAE7ED;
+    --muted:#8A8378;
+    --ink:#2A2620;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    color:var(--ink);
+    padding-bottom:50px;
+  }
+  .wrap{max-width:480px;margin:0 auto;padding:18px 16px 0;}
+
+  .top{padding:6px 2px 16px;}
+  .eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:0 0 4px;}
+  .top h1{font-size:21px;margin:0;font-weight:700;letter-spacing:-0.01em;}
+
+  /* HERO countdown */
+  .hero{
+    background:linear-gradient(160deg, var(--night) 0%, var(--night-soft) 100%);
+    color:#fff;border-radius:22px;padding:24px 20px 20px;margin-bottom:14px;
+    position:relative;overflow:hidden;
+  }
+  .hero::after{
+    content:"";position:absolute;right:-30px;top:-30px;width:140px;height:140px;
+    border-radius:50%;background:radial-gradient(circle, rgba(217,102,63,0.25), transparent 70%);
+  }
+  .hero .label{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#A7B1CC;margin:0 0 4px;font-weight:600;text-align:center;}
+  .hero .num{font-size:52px;font-weight:800;letter-spacing:-0.03em;margin:0;line-height:1;font-variant-numeric:tabular-nums;text-align:center;}
+  .hero .num span{font-size:18px;font-weight:600;color:#A7B1CC;margin-left:6px;}
+  .hero .sub{font-size:13px;color:#C7CEE2;margin-top:8px;text-align:center;}
+  .progress-track{margin-top:18px;height:10px;border-radius:7px;background:rgba(255,255,255,0.12);overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,#D9663F,#C9A24B);border-radius:7px;transition:width .5s ease;}
+  .progress-legend{display:flex;justify-content:space-between;font-size:11.5px;color:#A7B1CC;margin-top:8px;}
+  .progress-legend b{color:#fff;font-weight:700;}
+
+  /* CALENDARIO CARRUSEL */
+  .cal-card{padding:16px 0 16px;}
+  .cal-header{display:flex;align-items:center;justify-content:space-between;padding:0 16px 12px;}
+  .cal-header h2{margin:0;}
+  .cal-nav{display:flex;align-items:center;gap:10px;}
+  .cal-arrow{
+    width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:var(--paper);
+    color:var(--ink);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;
+  }
+  .cal-title{font-size:13.5px;font-weight:700;min-width:96px;text-align:center;}
+  .cal-scroll{
+    display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .cal-scroll::-webkit-scrollbar{display:none;}
+  .cal-month{flex:0 0 100%;scroll-snap-align:start;padding:0 16px;}
+  .cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:6px;}
+  .cal-weekdays span{font-size:10px;font-weight:700;color:var(--muted);text-align:center;text-transform:uppercase;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
+  .cal-day{
+    aspect-ratio:1;border-radius:9px;display:flex;align-items:center;justify-content:center;
+    font-size:12.5px;font-weight:600;background:var(--paper);color:var(--ink);cursor:pointer;
+    border:1.5px solid transparent;position:relative;
+  }
+  .cal-day.empty{visibility:hidden;cursor:default;}
+  .cal-day.out{opacity:0.28;cursor:default;}
+  .cal-day.is-today{border-color:var(--terracotta);color:var(--terracotta);font-weight:800;}
+  .cal-day.marked{background:var(--terracotta);color:#fff;}
+  .cal-day.marked.is-today{border-color:#fff;}
+  .cal-dots{display:flex;justify-content:center;gap:6px;margin-top:14px;}
+  .cal-dot{width:6px;height:6px;border-radius:50%;background:var(--line);}
+  .cal-dot.active{background:var(--terracotta);width:16px;border-radius:4px;}
+
+  /* Date editor */
+  .date-row{display:flex;gap:8px;margin-top:16px;}
+  .date-field{flex:1;background:rgba(255,255,255,0.08);border-radius:12px;padding:9px 10px;}
+  .date-field label{display:block;font-size:9.5px;color:#A7B1CC;text-transform:uppercase;letter-spacing:.04em;font-weight:700;margin-bottom:3px;}
+  .date-field input{width:100%;border:none;background:transparent;color:#fff;font-size:12.5px;font-weight:600;outline:none;}
+  .date-field input::-webkit-calendar-picker-indicator{filter:invert(1);opacity:0.7;}
+
+  /* Mini stats */
+  .mini-row{display:flex;gap:10px;margin-bottom:14px;}
+  .mini{flex:1;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 13px;text-align:center;}
+  .mini .m-label{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.03em;}
+  .mini .m-amt{font-size:19px;font-weight:800;margin-top:3px;font-variant-numeric:tabular-nums;}
+
+  /* Clocks card */
+  .clocks{display:flex;gap:10px;margin-bottom:14px;}
+  .clock-card{flex:1;border-radius:18px;padding:16px 14px;position:relative;overflow:hidden;}
+  .clock-card.madrid{background:linear-gradient(160deg,var(--gold-bg),#fff);border:1px solid #EFE0BC;}
+  .clock-card.mexico{background:linear-gradient(160deg,var(--blue-bg),#fff);border:1px solid #D6E2F4;}
+  .clock-card .c-flag{font-size:18px;}
+  .clock-card .c-city{font-size:12px;font-weight:700;margin-top:4px;}
+  .clock-card.madrid .c-city{color:var(--gold);}
+  .clock-card.mexico .c-city{color:var(--blue);}
+  .clock-card .c-time{font-size:24px;font-weight:800;margin-top:6px;font-variant-numeric:tabular-nums;letter-spacing:-0.01em;}
+  .clock-card .c-date{font-size:10.5px;color:var(--muted);margin-top:2px;text-transform:capitalize;}
+
+  /* Cards */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px;}
+  .card h2{font-size:14.5px;margin:0 0 4px;font-weight:700;}
+  .card .desc{font-size:11.5px;color:var(--muted);margin:0 0 12px;line-height:1.4;}
+
+  /* Photo upload */
+  .cat-pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+  .cat-pill{font-size:12px;font-weight:600;padding:7px 12px;border-radius:20px;border:1px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer;}
+  .cat-pill.active{color:#fff;border-color:transparent;}
+  .cat-pill[data-cat="familia"].active{background:var(--sage);}
+  .cat-pill[data-cat="amigos"].active{background:var(--blue);}
+  .cat-pill[data-cat="amor"].active{background:var(--rose);}
+  .cat-pill[data-cat="todos"].active{background:var(--ink);}
+
+  .add-toggle{
+    display:flex;align-items:center;gap:6px;background:none;border:none;
+    font-size:12px;font-weight:600;color:var(--muted);padding:6px 2px;cursor:pointer;
+  }
+  .add-toggle .plus-ico{
+    width:18px;height:18px;border-radius:50%;background:var(--line);
+    display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--ink);
+  }
+  .add-form{display:none;margin-top:10px;padding-top:12px;border-top:1px dashed var(--line);}
+  .add-form.open{display:block;}
+
+  .upload-row{display:flex;gap:8px;align-items:center;}
+  .upload-btn{
+    flex-shrink:0;display:flex;align-items:center;justify-content:center;
+    width:46px;height:46px;border-radius:12px;background:var(--paper);
+    border:1.5px dashed var(--line);color:var(--muted);font-size:22px;cursor:pointer;
+  }
+  .caption-input{
+    flex:1;min-width:0;border:1px solid var(--line);border-radius:10px;
+    padding:11px 12px;font-size:13.5px;outline:none;background:var(--paper);
+  }
+  input[type="file"]{display:none;}
+
+  .gallery{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px;}
+  .photo-card{
+    border-radius:14px;overflow:hidden;background:var(--paper);border:1px solid var(--line);
+    position:relative;
+  }
+  .photo-card img{width:100%;height:130px;object-fit:cover;display:block;}
+  .photo-card .p-tag{
+    position:absolute;top:7px;left:7px;font-size:9.5px;font-weight:700;color:#fff;
+    padding:3px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.03em;
+  }
+  .photo-card .p-tag.familia{background:var(--sage);}
+  .photo-card .p-tag.amigos{background:var(--blue);}
+  .photo-card .p-tag.amor{background:var(--rose);}
+  .photo-card .p-del{
+    position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;
+    background:rgba(0,0,0,0.45);color:#fff;border:none;font-size:13px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .photo-card .p-caption{font-size:11.5px;font-weight:600;padding:8px 9px;color:var(--ink);line-height:1.3;}
+  .empty{font-size:12.5px;color:var(--muted);text-align:center;padding:18px 0 6px;}
+
+  .footer-note{text-align:center;font-size:11px;color:var(--muted);margin-top:6px;padding-bottom:10px;line-height:1.5;}
+  .save-pill{position:fixed;bottom:16px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--night);color:#fff;font-size:12px;font-weight:600;padding:9px 16px;border-radius:30px;opacity:0;transition:opacity .25s ease, transform .25s ease;pointer-events:none;}
+  .save-pill.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <p class="eyebrow">Intercambio · Alcalá de Henares, España</p>
+    <h1>De vuelta a casa</h1>
+  </div>
+
+  <!-- CALENDARIO -->
+  <div class="card cal-card">
+    <div class="cal-header">
+      <h2>🗓️ Marca tus días</h2>
+    </div>
+    <div class="cal-nav" style="padding:0 16px 10px;justify-content:center;">
+      <button class="cal-arrow" id="calPrev">‹</button>
+      <span class="cal-title" id="calTitle">—</span>
+      <button class="cal-arrow" id="calNext">›</button>
+    </div>
+    <div class="cal-scroll" id="calScroll"></div>
+    <div class="cal-dots" id="calDots"></div>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <p class="label">Días para volver</p>
+    <p class="num" id="daysLeft">0<span>días</span></p>
+    <p class="sub" id="heroSub">del 1 jul al 31 dic 2026</p>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="progress-legend">
+      <span>Pasaron <b id="legendPassed">0</b></span>
+      <span>Faltan <b id="legendLeft">0</b></span>
+    </div>
+    <div class="date-row">
+      <div class="date-field">
+        <label>Salida</label>
+        <input type="date" id="tripStart" value="2026-07-01">
+      </div>
+      <div class="date-field">
+        <label>Regreso</label>
+        <input type="date" id="tripEnd" value="2026-12-31">
+      </div>
+    </div>
+  </div>
+
+  <div class="mini-row">
+    <div class="mini">
+      <div class="m-label">Avance del viaje</div>
+      <div class="m-amt" id="miniPercent" style="color:var(--terracotta)">0%</div>
+    </div>
+    <div class="mini">
+      <div class="m-label">Semana</div>
+      <div class="m-amt" id="miniWeek" style="color:var(--sage)">0 / 0</div>
+    </div>
+  </div>
+
+  <!-- RELOJES -->
+  <div class="clocks">
+    <div class="clock-card madrid">
+      <div class="c-flag">🇪🇸</div>
+      <div class="c-city">Madrid</div>
+      <div class="c-time" id="madridTime">--:--</div>
+      <div class="c-date" id="madridDate">—</div>
+    </div>
+    <div class="clock-card mexico">
+      <div class="c-flag">🇲🇽</div>
+      <div class="c-city">México</div>
+      <div class="c-time" id="mexicoTime">--:--</div>
+      <div class="c-date" id="mexicoDate">—</div>
+    </div>
+  </div>
+
+  <!-- GALERÍA -->
+  <div class="card">
+    <h2>📸 Para recordarlos</h2>
+
+    <div class="cat-pills" id="filterCatPills">
+      <button class="cat-pill active" data-cat="todos">Todos</button>
+      <button class="cat-pill" data-cat="familia">Familia</button>
+      <button class="cat-pill" data-cat="amigos">Amigos</button>
+      <button class="cat-pill" data-cat="amor">Amor</button>
+    </div>
+
+    <div class="gallery" id="gallery"></div>
+
+    <button class="add-toggle" id="addToggleBtn"><span class="plus-ico">+</span> Agregar foto</button>
+    <div class="add-form" id="addForm">
+      <div class="cat-pills" id="addCatPills">
+        <button class="cat-pill active" data-cat="familia">Familia</button>
+        <button class="cat-pill" data-cat="amigos">Amigos</button>
+        <button class="cat-pill" data-cat="amor">Amor</button>
+      </div>
+      <div class="upload-row">
+        <label class="upload-btn" for="fileInput">+</label>
+        <input type="file" id="fileInput" accept="image/*">
+        <input type="text" class="caption-input" id="captionInput" placeholder="¿Quién aparece? (ej. Mamá, Carlos...)">
+      </div>
+    </div>
+  </div>
+
+  <p class="footer-note">Tus fechas y fotos se guardan automáticamente en este dispositivo.<br>Si subes muchas fotos de alta resolución, el navegador podría llenarse — se comprimen solas para ayudar.</p>
+</div>
+
+<div class="save-pill" id="savePill">Guardado ✓</div>
+
+<script>
+const STORAGE_KEY = "cuenta_regresiva_espana_v1";
+let state = {
+  tripStart: "2026-07-01",
+  tripEnd: "2026-12-31",
+  photos: [],
+  markedDays: {},
+  addCat: "familia",
+  filterCat: "todos"
+};
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const p = JSON.parse(raw);
+      state.tripStart = p.tripStart || state.tripStart;
+      state.tripEnd = p.tripEnd || state.tripEnd;
+      state.photos = (p.photos || []).map(ph => ph.category === "novio" ? { ...ph, category: "amor" } : ph);
+      state.markedDays = p.markedDays || {};
+    }
+  } catch (e) { console.log("Sin datos previos."); }
+}
+let saveTimeout;
+function save() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      tripStart: state.tripStart, tripEnd: state.tripEnd, photos: state.photos, markedDays: state.markedDays
+    }));
+    showSavePill();
+  } catch (e) { console.error("Error guardando (¿espacio lleno?):", e); }
+}
+function scheduleSave() { clearTimeout(saveTimeout); saveTimeout = setTimeout(save, 400); }
+function showSavePill() {
+  const pill = document.getElementById("savePill");
+  pill.classList.add("show");
+  clearTimeout(pill._t);
+  pill._t = setTimeout(() => pill.classList.remove("show"), 1100);
+}
+
+/* ---------- COUNTDOWN ---------- */
+function parseDateUTC(str) { return new Date(str + "T00:00:00Z").getTime(); }
+function todayUTC() {
+  const n = new Date();
+  return Date.UTC(n.getFullYear(), n.getMonth(), n.getDate());
+}
+const MESES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+function fmtDateShort(str) {
+  const d = new Date(str + "T00:00:00Z");
+  return `${d.getUTCDate()} ${MESES[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+}
+
+function renderCountdown() {
+  const startMs = parseDateUTC(state.tripStart);
+  const endMs = parseDateUTC(state.tripEnd);
+  const totalDays = Math.max(Math.round((endMs - startMs) / 86400000), 1);
+  let passed = Math.round((todayUTC() - startMs) / 86400000);
+  passed = Math.max(0, Math.min(passed, totalDays));
+  const left = totalDays - passed;
+  const pct = Math.round((passed / totalDays) * 100);
+
+  document.getElementById("daysLeft").innerHTML = `${left}<span>días</span>`;
+  document.getElementById("heroSub").textContent = `del ${fmtDateShort(state.tripStart)} al ${fmtDateShort(state.tripEnd)}`;
+  document.getElementById("progressFill").style.width = pct + "%";
+  document.getElementById("legendPassed").textContent = passed;
+  document.getElementById("legendLeft").textContent = left;
+  document.getElementById("miniPercent").textContent = pct + "%";
+  const weekNow = Math.min(Math.ceil(passed / 7) || (passed === 0 ? 0 : 1), Math.ceil(totalDays / 7));
+  document.getElementById("miniWeek").textContent = `${weekNow} / ${Math.ceil(totalDays / 7)}`;
+}
+
+/* ---------- CALENDARIO CARRUSEL ---------- */
+const MESES_LARGO = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+const DIAS_SEMANA = ["D","L","M","M","J","V","S"];
+let calMonths = []; // [{year, month}]
+let calCurrentIndex = 0;
+
+function getMonthsInRange(startStr, endStr) {
+  const start = new Date(startStr + "T00:00:00Z");
+  const end = new Date(endStr + "T00:00:00Z");
+  const months = [];
+  let y = start.getUTCFullYear(), m = start.getUTCMonth();
+  const endY = end.getUTCFullYear(), endM = end.getUTCMonth();
+  while (y < endY || (y === endY && m <= endM)) {
+    months.push({ year: y, month: m });
+    m++;
+    if (m > 11) { m = 0; y++; }
+  }
+  return months;
+}
+
+function dateStrOf(y, m, d) {
+  return `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+}
+
+function buildCalendar() {
+  calMonths = getMonthsInRange(state.tripStart, state.tripEnd);
+  const scroll = document.getElementById("calScroll");
+  const dots = document.getElementById("calDots");
+  scroll.innerHTML = "";
+  dots.innerHTML = "";
+
+  const startMs = parseDateUTC(state.tripStart);
+  const endMs = parseDateUTC(state.tripEnd);
+  const todayMs = todayUTC();
+
+  calMonths.forEach((cm, idx) => {
+    const panel = document.createElement("div");
+    panel.className = "cal-month";
+
+    const weekdaysRow = document.createElement("div");
+    weekdaysRow.className = "cal-weekdays";
+    DIAS_SEMANA.forEach(d => {
+      const s = document.createElement("span");
+      s.textContent = d;
+      weekdaysRow.appendChild(s);
+    });
+    panel.appendChild(weekdaysRow);
+
+    const grid = document.createElement("div");
+    grid.className = "cal-grid";
+    const firstDayOfWeek = new Date(Date.UTC(cm.year, cm.month, 1)).getUTCDay();
+    const daysInMonth = new Date(Date.UTC(cm.year, cm.month + 1, 0)).getUTCDate();
+
+    for (let i = 0; i < firstDayOfWeek; i++) {
+      const empty = document.createElement("div");
+      empty.className = "cal-day empty";
+      grid.appendChild(empty);
+    }
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = dateStrOf(cm.year, cm.month, d);
+      const dMs = parseDateUTC(dateStr);
+      const cell = document.createElement("div");
+      cell.className = "cal-day";
+      cell.textContent = d;
+      const inRange = dMs >= startMs && dMs <= endMs;
+      if (!inRange) cell.classList.add("out");
+      if (dMs === todayMs) cell.classList.add("is-today");
+      if (state.markedDays[dateStr]) cell.classList.add("marked");
+      if (inRange) {
+        cell.addEventListener("click", () => {
+          if (state.markedDays[dateStr]) delete state.markedDays[dateStr];
+          else state.markedDays[dateStr] = true;
+          cell.classList.toggle("marked");
+          scheduleSave();
+        });
+      }
+      grid.appendChild(cell);
+    }
+    panel.appendChild(grid);
+    scroll.appendChild(panel);
+
+    const dot = document.createElement("div");
+    dot.className = "cal-dot" + (idx === 0 ? " active" : "");
+    dot.addEventListener("click", () => goToMonth(idx));
+    dots.appendChild(dot);
+  });
+
+  updateCalTitle(0);
+  scroll.scrollLeft = 0;
+  calCurrentIndex = 0;
+}
+
+function updateCalTitle(idx) {
+  const cm = calMonths[idx];
+  if (!cm) return;
+  document.getElementById("calTitle").textContent = `${MESES_LARGO[cm.month]} ${cm.year}`;
+  document.querySelectorAll(".cal-dot").forEach((d, i) => d.classList.toggle("active", i === idx));
+}
+
+function goToMonth(idx) {
+  const scroll = document.getElementById("calScroll");
+  idx = Math.max(0, Math.min(idx, calMonths.length - 1));
+  scroll.scrollTo({ left: scroll.clientWidth * idx, behavior: "smooth" });
+}
+
+let calScrollTimeout;
+function initCalScrollListener() {
+  const scroll = document.getElementById("calScroll");
+  scroll.addEventListener("scroll", () => {
+    clearTimeout(calScrollTimeout);
+    calScrollTimeout = setTimeout(() => {
+      const idx = Math.round(scroll.scrollLeft / scroll.clientWidth);
+      if (idx !== calCurrentIndex) { calCurrentIndex = idx; updateCalTitle(idx); }
+    }, 80);
+  });
+  document.getElementById("calPrev").addEventListener("click", () => goToMonth(calCurrentIndex - 1));
+  document.getElementById("calNext").addEventListener("click", () => goToMonth(calCurrentIndex + 1));
+}
+
+/* ---------- RELOJES ---------- */
+function renderClocks() {
+  const now = new Date();
+  try {
+    const madridTime = now.toLocaleTimeString("es-ES", { timeZone: "Europe/Madrid", hour: "2-digit", minute: "2-digit" });
+    const madridDate = now.toLocaleDateString("es-ES", { timeZone: "Europe/Madrid", weekday: "long", day: "numeric", month: "short" });
+    document.getElementById("madridTime").textContent = madridTime;
+    document.getElementById("madridDate").textContent = madridDate;
+  } catch (e) {}
+  try {
+    const mexTime = now.toLocaleTimeString("es-MX", { timeZone: "America/Mexico_City", hour: "2-digit", minute: "2-digit" });
+    const mexDate = now.toLocaleDateString("es-MX", { timeZone: "America/Mexico_City", weekday: "long", day: "numeric", month: "short" });
+    document.getElementById("mexicoTime").textContent = mexTime;
+    document.getElementById("mexicoDate").textContent = mexDate;
+  } catch (e) {}
+}
+
+/* ---------- FOTOS ---------- */
+function compressImage(file, maxW, quality) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if (w > maxW) { h = Math.round(h * (maxW / w)); w = maxW; }
+        const canvas = document.createElement("canvas");
+        canvas.width = w; canvas.height = h;
+        canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderGallery() {
+  const wrap = document.getElementById("gallery");
+  wrap.innerHTML = "";
+  const list = state.photos.filter(p => state.filterCat === "todos" || p.category === state.filterCat);
+  if (list.length === 0) {
+    wrap.innerHTML = `<div class="empty" style="grid-column:1/-1;">Aún no agregas fotos. Sube la primera arriba 💛</div>`;
+    return;
+  }
+  const sorted = [...list].sort((a, b) => b.date - a.date);
+  sorted.forEach(p => {
+    const card = document.createElement("div");
+    card.className = "photo-card";
+    card.innerHTML = `
+      <span class="p-tag ${p.category}">${p.category}</span>
+      <button class="p-del">×</button>
+      <img src="${p.img}" alt="${p.caption}">
+      <div class="p-caption">${p.caption || ""}</div>
+    `;
+    card.querySelector(".p-del").addEventListener("click", () => {
+      state.photos = state.photos.filter(x => x.id !== p.id);
+      renderGallery(); scheduleSave();
+    });
+    wrap.appendChild(card);
+  });
+}
+
+function renderAddPills() {
+  document.querySelectorAll("#addCatPills .cat-pill").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.cat === state.addCat);
+  });
+}
+function renderFilterPills() {
+  document.querySelectorAll("#filterCatPills .cat-pill").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.cat === state.filterCat);
+  });
+}
+
+document.querySelectorAll("#addCatPills .cat-pill").forEach(btn => {
+  btn.addEventListener("click", () => { state.addCat = btn.dataset.cat; renderAddPills(); });
+});
+document.querySelectorAll("#filterCatPills .cat-pill").forEach(btn => {
+  btn.addEventListener("click", () => { state.filterCat = btn.dataset.cat; renderFilterPills(); renderGallery(); });
+});
+
+document.getElementById("fileInput").addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    const dataUrl = await compressImage(file, 640, 0.65);
+    const captionInput = document.getElementById("captionInput");
+    state.photos.push({
+      id: Math.random().toString(36).slice(2, 9),
+      category: state.addCat,
+      caption: captionInput.value.trim(),
+      img: dataUrl,
+      date: Date.now()
+    });
+    captionInput.value = "";
+    e.target.value = "";
+    renderGallery();
+    scheduleSave();
+  } catch (err) {
+    console.error("No se pudo procesar la imagen:", err);
+  }
+});
+
+document.getElementById("tripStart").addEventListener("change", e => {
+  state.tripStart = e.target.value; renderCountdown(); buildCalendar(); scheduleSave();
+});
+document.getElementById("tripEnd").addEventListener("change", e => {
+  state.tripEnd = e.target.value; renderCountdown(); buildCalendar(); scheduleSave();
+});
+
+document.getElementById("addToggleBtn").addEventListener("click", () => {
+  const form = document.getElementById("addForm");
+  const btn = document.getElementById("addToggleBtn");
+  const open = form.classList.toggle("open");
+  btn.innerHTML = open ? `<span class="plus-ico">×</span> Cerrar` : `<span class="plus-ico">+</span> Agregar foto`;
+});
+
+function init() {
+  load();
+  document.getElementById("tripStart").value = state.tripStart;
+  document.getElementById("tripEnd").value = state.tripEnd;
+  renderCountdown();
+  buildCalendar();
+  initCalScrollListener();
+  renderClocks();
+  renderAddPills();
+  renderFilterPills();
+  renderGallery();
+  setInterval(renderClocks, 1000);
+  setInterval(renderCountdown, 60000);
+}
+init();
+</script>
+</body>
+</html>
